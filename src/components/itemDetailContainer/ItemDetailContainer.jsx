@@ -1,23 +1,24 @@
-import ItemList from '../itemList/ItemList'
+import ItemDetail from "../itemDetail/ItemDetail"
 import { useState, useEffect } from "react"
-import { useParams } from 'react-router-dom'
+import { useParams } from "react-router-dom"
 
-const ItemListContainer = () =>{
-    const { categoryId } = useParams()
+const ItemDetailContainer = () =>{
+    const { id } = useParams()
     const [ productos, setProductos ] = useState([])
     const [ loading, setLoading ] = useState(true)
 
     const Promesa = new Promise ((resolve, reject) => {
-        const misProductos = fetch('https://fakestoreapi.com/products')
+        const productoSeleccionado = fetch(`https://fakestoreapi.com/products/${id}`)
         setTimeout(() => {
-            misProductos ? resolve(misProductos) : reject("Error en la conexión a las bases de datos")
-        }, 2000);
+            productoSeleccionado ? resolve(productoSeleccionado) : reject("Error en la conexión a las bases de datos")
+        },1000);
     })
 
     useEffect(()=> {
         Promesa
             .then(res=> res.json())
             .then(json=> {
+                console.log(json)
                 setProductos(json)
             })
             .catch(error => console.error(error))
@@ -27,20 +28,12 @@ const ItemListContainer = () =>{
     },[])
 
     if( loading ) return <div>Cargando...</div>
-
-    let a
     
-    if(categoryId){
-        a = productos?.filter((prod) => prod.category === categoryId).map((producto) => producto)
-    }else{
-        a = productos
-    }
-
     return(
         <>
-        <ItemList productos={a} />
+        <ItemDetail titulo={productos.title} descripcion={productos.description} stock={productos.stock} imagen={productos.image} />
         </>
     )
 }
 
-export default ItemListContainer
+export default ItemDetailContainer
